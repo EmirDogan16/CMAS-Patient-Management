@@ -1,11 +1,6 @@
 package com.patientx;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -18,28 +13,40 @@ public class DatabaseConnection {
     
     static {
         try {
-            // Uygulama klasörünü bul
-            String appDir = new File(System.getProperty("user.dir")).getAbsolutePath();
-            dbPath = Paths.get(appDir, DB_FILENAME).toString();
-            
-            // Eğer veritabanı dosyası yoksa, resources'dan kopyala
-            if (!Files.exists(Paths.get(dbPath))) {
-                // Resources'dan veritabanını kopyala
-                try (InputStream is = DatabaseConnection.class.getResourceAsStream("/PatientXdatabase.db")) {
-                    if (is != null) {
-                        Files.copy(is, Paths.get(dbPath), StandardCopyOption.REPLACE_EXISTING);
-                        System.out.println("Veritabanı resources'dan kopyalandı.");
-                    } else {
-                        System.err.println("Veritabanı resources'da bulunamadı!");
-                    }
+            // Önce mevcut dizinde veritabanını ara
+            File currentDirDb = new File(DB_FILENAME);
+            if (currentDirDb.exists()) {
+                // Eğer mevcut dizinde varsa, onu kullan
+                dbPath = currentDirDb.getAbsolutePath();
+                System.out.println("Mevcut veritabanı kullanılıyor: " + dbPath);
+            } else {
+                // Mevcut dizinde yoksa, jar dosyasının olduğu dizine bak
+                String jarPath = DatabaseConnection.class.getProtectionDomain()
+                    .getCodeSource()
+                    .getLocation()
+                    .toURI()
+                    .getPath();
+                File jarDir = new File(jarPath).getParentFile();
+                File dbFile = new File(jarDir, DB_FILENAME);
+                
+                if (dbFile.exists()) {
+                    // Jar dizininde varsa, onu kullan
+                    dbPath = dbFile.getAbsolutePath();
+                    System.out.println("Jar dizinindeki veritabanı kullanılıyor: " + dbPath);
+                } else {
+                    // Hiçbir yerde yoksa, mevcut dizinde oluştur
+                    dbPath = currentDirDb.getAbsolutePath();
+                    System.out.println("Yeni veritabanı oluşturuluyor: " + dbPath);
                 }
             }
             
-            // Veritabanı bağlantısını test et
+            // Test bağlantısı
             testConnection();
             
-        } catch (IOException e) {
-            System.err.println("Veritabanı dosya işlemleri hatası: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Veritabanı başlatma hatası: " + e.getMessage());
+            // Hata durumunda varsayılan olarak mevcut dizini kullan
+            dbPath = new File(DB_FILENAME).getAbsolutePath();
         }
     }
     
