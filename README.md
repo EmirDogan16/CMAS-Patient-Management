@@ -2,6 +2,13 @@
 
 A Java-based patient management system that handles CMAS (Childhood Myositis Assessment Scale) results and laboratory data.
 
+## Version
+Current Version: 17.1
+- All system messages and comments converted to English
+- Improved database path handling
+- Enhanced error messages and logging
+- Added backup and recovery features
+
 ## Features
 
 - User Authentication (Doctors and Patients)
@@ -19,6 +26,8 @@ A Java-based patient management system that handles CMAS (Childhood Myositis Ass
 
 ## Setup and Running
 
+### Method 1: Using Git Clone
+
 1. Clone the Repository:
 ```bash
 git clone https://github.com/EmirDogan16/CMAS-Patient-Management.git
@@ -34,6 +43,16 @@ mvn clean package
 ```bash
 java -cp "target/cmas-management-1.0-SNAPSHOT.jar;target/dependency/*" com.patientx.Main
 ```
+
+### Method 2: Using ZIP Download
+
+1. Download the ZIP file from GitHub
+2. Extract the ZIP file
+3. **IMPORTANT:** When launching the application, you must drag and drop the `Main.java` file from INSIDE the extracted folder. Do not drag the folder itself.
+   - ✅ Correct: Drag `extracted-folder/src/main/java/.../Main.java`
+   - ❌ Incorrect: Drag the entire extracted folder
+   
+   If you don't follow this step, the application will create a new empty database because it cannot locate the correct path to the existing database.
 
 ## Database Management
 
