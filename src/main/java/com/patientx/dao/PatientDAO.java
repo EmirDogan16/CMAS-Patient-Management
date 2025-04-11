@@ -27,7 +27,7 @@ public class PatientDAO {
         try (Connection conn = databaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.executeUpdate();
-            // syncPatientsFromLabResults(); // Başlangıç kilidini test etmek için geçici olarak devre dışı bırakıldı
+            // syncPatientsFromLabResults(); // Temporarily disabled to test initial lock
         } catch (SQLException e) {
             System.err.println("Error creating Patients table: " + e.getMessage());
         }
@@ -267,7 +267,7 @@ public class PatientDAO {
         }
     }
 
-    // validatePatient metodunu geri ekleyelim
+    // validatePatient method added back
     public boolean validatePatient(String patientId) {
         // Check in both Patient and Patients tables
         String sql = "SELECT 1 FROM Patient WHERE PatientID = ? " +
@@ -281,15 +281,32 @@ public class PatientDAO {
             pstmt.setString(1, patientId);
             pstmt.setString(2, patientId);
             ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // Hasta herhangi bir tabloda varsa true döner
+            return rs.next(); // Returns true if patient exists in any table
             
         } catch (SQLException e) {
             System.err.println("Error validating patient existence: " + e.getMessage());
-            return false; // Hata durumunda false dön
+            return false; // Return false in case of error
         }
     }
 
-    // Yeni metod: Verilen ismin var olup olmadığını kontrol et
+    // This method should manage its own connection
+    private boolean doesPatientExist(Connection conn, String patientId) {
+        String sql = "SELECT 1 FROM Patient WHERE PatientID = ? " +
+                    "UNION SELECT 1 FROM Patients WHERE id = ?";
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, patientId);
+            pstmt.setString(2, patientId);
+            ResultSet rs = pstmt.executeQuery();
+            return rs.next(); // Returns true if patient exists in any table
+            
+        } catch (SQLException e) {
+            System.err.println("Error validating patient existence: " + e.getMessage());
+            return false; // Return false in case of error
+        }
+    }
+
+    // New method: Check if the given name exists
     public boolean checkPatientNameExists(String name) {
         // Check in both Patient and Patients tables
         String sql = "SELECT 1 FROM Patient WHERE Name = ? COLLATE NOCASE " +
@@ -310,5 +327,11 @@ public class PatientDAO {
             // Return false on error to allow proceeding, but log the issue
             return false; 
         }
+    }
+
+    // This method should manage its own connection
+    private boolean isNameExists(String name) {
+        // Implementation of the method
+        return false; // Placeholder return, actual implementation needed
     }
 } 

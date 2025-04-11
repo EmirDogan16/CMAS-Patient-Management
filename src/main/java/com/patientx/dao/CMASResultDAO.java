@@ -10,16 +10,18 @@ import java.util.List;
 
 import com.patientx.model.CMASResult;
 
-// CMASResultDAO'yu geçici olarak tablo analizi için kullanıyoruz
+// Using CMASResultDAO temporarily for table analysis
 public class CMASResultDAO {
     private static CMASResultDAO instance;
     private DatabaseManager dbManager;
-    private PatientDAO patientDAO; // PatientDAO'ya erişim için
+    private PatientDAO patientDAO; // For accessing PatientDAO
+    private Connection conn;
 
     private CMASResultDAO() {
         this.dbManager = DatabaseManager.getInstance();
-        this.patientDAO = new PatientDAO(); // PatientDAO örneğini oluştur
-        createCMASTable(); 
+        this.patientDAO = new PatientDAO(); // Create PatientDAO instance
+        this.conn = DatabaseConnection.getConnection();
+        createTable(); 
     }
 
     public static CMASResultDAO getInstance() {
@@ -29,22 +31,20 @@ public class CMASResultDAO {
         return instance;
     }
 
-    // Doğru ve kesin şema ile tablo oluşturma
-    public void createCMASTable() {
-        String sql = "CREATE TABLE IF NOT EXISTS CMAS (" +
-                    "ID INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    "PatientID TEXT NOT NULL," +
-                    "TestDate TEXT NOT NULL," +
-                    "Score INTEGER NOT NULL," +
-                    "ScoreType TEXT NOT NULL," +
-                    "FOREIGN KEY (PatientID) REFERENCES Patient(PatientID))";
-        
-        try (Connection conn = dbManager.getConnection();
-             Statement stmt = conn.createStatement()) {
-            stmt.executeUpdate(sql);
+    public void createTable() {
+        String sql = "CREATE TABLE IF NOT EXISTS CMASResults (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "patientId TEXT NOT NULL," +
+                "testDate TEXT NOT NULL," +
+                "score INTEGER NOT NULL," +
+                "FOREIGN KEY (patientId) REFERENCES Patients(id)" +
+                ")";
+
+        try (Statement stmt = conn.createStatement()) {
+            // Create table with correct and precise schema
+            stmt.execute(sql);
         } catch (SQLException e) {
-            System.err.println("Error creating/checking CMAS table: " + e.getMessage());
-            e.printStackTrace();
+            System.err.println(e.getMessage());
         }
     }
 
