@@ -38,7 +38,7 @@ public class LabResultDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     LabResult result = new LabResult(
-                        0, // Using 0 as ID since we don't need it internally
+                        "0", // Using "0" as ID since we don't need it internally
                         rs.getString("PatientID"),
                         rs.getString("TestDate"),
                         rs.getString("TestName"),
