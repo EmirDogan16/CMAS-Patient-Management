@@ -13,14 +13,14 @@ public class DatabaseConnection {
     
     static {
         try {
-            // Önce mevcut dizinde veritabanını ara
+            // Check for database in current directory
             File currentDirDb = new File(DB_FILENAME);
             if (currentDirDb.exists()) {
-                // Eğer mevcut dizinde varsa, onu kullan
+                // Use existing database if found
                 dbPath = currentDirDb.getAbsolutePath();
-                System.out.println("Mevcut veritabanı kullanılıyor: " + dbPath);
+                System.out.println("Using existing database: " + dbPath);
             } else {
-                // Mevcut dizinde yoksa, jar dosyasının olduğu dizine bak
+                // Look for database in JAR directory
                 String jarPath = DatabaseConnection.class.getProtectionDomain()
                     .getCodeSource()
                     .getLocation()
@@ -30,22 +30,22 @@ public class DatabaseConnection {
                 File dbFile = new File(jarDir, DB_FILENAME);
                 
                 if (dbFile.exists()) {
-                    // Jar dizininde varsa, onu kullan
+                    // Use database from JAR directory
                     dbPath = dbFile.getAbsolutePath();
-                    System.out.println("Jar dizinindeki veritabanı kullanılıyor: " + dbPath);
+                    System.out.println("Using database from JAR directory: " + dbPath);
                 } else {
-                    // Hiçbir yerde yoksa, mevcut dizinde oluştur
+                    // Create new database in current directory
                     dbPath = currentDirDb.getAbsolutePath();
-                    System.out.println("Yeni veritabanı oluşturuluyor: " + dbPath);
+                    System.out.println("Creating new database: " + dbPath);
                 }
             }
             
-            // Test bağlantısı
+            // Test connection
             testConnection();
             
         } catch (Exception e) {
-            System.err.println("Veritabanı başlatma hatası: " + e.getMessage());
-            // Hata durumunda varsayılan olarak mevcut dizini kullan
+            System.err.println("Database initialization error: " + e.getMessage());
+            // Use current directory as fallback
             dbPath = new File(DB_FILENAME).getAbsolutePath();
         }
     }
@@ -62,14 +62,14 @@ public class DatabaseConnection {
             
             // Test query to get table names
             ResultSet rs = connection.getMetaData().getTables(null, null, null, new String[]{"TABLE"});
-            System.out.println("Veritabanındaki tablolar:");
+            System.out.println("Available tables in database:");
             while (rs.next()) {
                 String tableName = rs.getString("TABLE_NAME");
                 System.out.println("- " + tableName);
             }
             
         } catch (SQLException e) {
-            System.err.println("Veritabanı bağlantı hatası: " + e.getMessage());
+            System.err.println("Database connection error: " + e.getMessage());
             e.printStackTrace();
         }
     }

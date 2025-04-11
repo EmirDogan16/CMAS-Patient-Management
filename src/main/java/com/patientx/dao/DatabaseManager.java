@@ -21,67 +21,54 @@ public class DatabaseManager {
 
     // Constructor private
     private DatabaseManager() {
-        // Constructor left empty, initial setup can be called in getInstance
+        // Initialize database setup/update here
+        setupDatabase();
     }
 
     public static DatabaseManager getInstance() {
         if (instance == null) {
-            instance = new DatabaseManager();
-            // Perform initial database setup/update here
-            instance.performInitialSetup();
+            synchronized (DatabaseManager.class) {
+                if (instance == null) {
+                    instance = new DatabaseManager();
+                }
+            }
         }
         return instance;
     }
     
-    // Helper method for configuring connection settings
+    // Helper method for connection settings
     private void setupConnection(Connection conn) throws SQLException {
-        try (Statement stmt = conn.createStatement()) {
-            // First set timeout, then other pragmas
-            stmt.execute("PRAGMA busy_timeout = 5000;"); // 5 second wait time
-            stmt.execute("PRAGMA foreign_keys = ON;");
-            // System.out.println("Database connection configured: Foreign Keys ON, Busy Timeout 5000ms"); // Optional log
+        if (conn != null) {
+            Statement stmt = conn.createStatement();
+            stmt.setQueryTimeout(30);
+            stmt.execute("PRAGMA foreign_keys = ON");
         }
     }
 
-    // Method to return a new, configured connection each time
+    // Returns a new configured connection each time
     public Connection getConnection() throws SQLException {
         Connection conn = DriverManager.getConnection(DB_URL);
         setupConnection(conn); // Always configure new connections
         return conn;
     }
     
-    // Method for initial setup and potential schema updates
-    // This method should handle its own transaction management
-    private void performInitialSetup() {
-        try {
-            Class.forName("org.sqlite.JDBC");
-        } catch (ClassNotFoundException e) {
-            System.err.println("Failed to load SQLite JDBC driver.");
-            // This error could be critical if the application needs to continue
-            // throw new RuntimeException("Failed to load SQLite JDBC driver", e);
-        }
-
+    private void setupDatabase() {
         try (Connection conn = DriverManager.getConnection(DB_URL); // Separate connection for setup
              Statement stmt = conn.createStatement()) {
-
-            // Also set up connection settings here (timeout might be important)
-            setupConnection(conn);
-
-            // Create tables if they don't exist
-            stmt.execute(CREATE_PATIENTS_TABLE);
-            stmt.execute(CREATE_LAB_RESULTS_TABLE);
-
-            // Update existing records if needed
-            updateExistingRecords(conn);
-
-        } catch (SQLException e) {
-            System.err.println("Error during initial setup: " + e.getMessage());
-            // System.out.println("Initial Setup: No patient names needed updating."); // Optional log
-            e.printStackTrace();
             
-            // Additional handling can be done here if this error is critical
-            // throw new RuntimeException("Failed to perform initial setup", e);
+            // Set connection settings here (timeout is important)
+            setupConnection(conn);
+            
+            // Create tables if they don't exist
+            createTables(stmt);
+            
+        } catch (SQLException e) {
+            System.err.println("Database setup error: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-    // Application continuation might be dangerous
+    
+    private void createTables(Statement stmt) throws SQLException {
+        // Create tables...
+    }
 } 

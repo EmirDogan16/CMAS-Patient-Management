@@ -2,13 +2,6 @@
 
 A Java-based patient management system that handles CMAS (Childhood Myositis Assessment Scale) results and laboratory data.
 
-## Version
-Current Version: 17.1
-- All system messages and comments converted to English
-- Improved database path handling
-- Enhanced error messages and logging
-- Added backup and recovery features
-
 ## Features
 
 - User Authentication (Doctors and Patients)

@@ -289,23 +289,6 @@ public class PatientDAO {
         }
     }
 
-    // This method should manage its own connection
-    private boolean doesPatientExist(Connection conn, String patientId) {
-        String sql = "SELECT 1 FROM Patient WHERE PatientID = ? " +
-                    "UNION SELECT 1 FROM Patients WHERE id = ?";
-        
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, patientId);
-            pstmt.setString(2, patientId);
-            ResultSet rs = pstmt.executeQuery();
-            return rs.next(); // Returns true if patient exists in any table
-            
-        } catch (SQLException e) {
-            System.err.println("Error validating patient existence: " + e.getMessage());
-            return false; // Return false in case of error
-        }
-    }
-
     // New method: Check if the given name exists
     public boolean checkPatientNameExists(String name) {
         // Check in both Patient and Patients tables
