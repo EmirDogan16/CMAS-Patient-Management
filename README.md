@@ -41,8 +41,8 @@ java -cp "target/cmas-management-1.0-SNAPSHOT.jar;target/dependency/*" com.patie
 
 1. Download the ZIP file from GitHub
 2. Extract the ZIP file
-3. **IMPORTANT:** When launching the application, you must drag and drop the `Main.java` file from INSIDE the extracted folder. Do not drag the folder itself.
-   - ✅ Correct: Drag `extracted-folder/src/main/java/.../Main.java`
+3. **IMPORTANT:** When launching the application, you must drag and drop the `CMAS-Patient-Management-main` file from INSIDE the extracted folder. Do not drag the folder itself.
+   - ✅ Correct: Drag `CMAS-Patient-Management-main`
    - ❌ Incorrect: Drag the entire extracted folder
    
    If you don't follow this step, the application will create a new empty database because it cannot locate the correct path to the existing database.
