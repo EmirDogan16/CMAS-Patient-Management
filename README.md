@@ -9,8 +9,7 @@ A Java-based patient management system that handles CMAS (Childhood Myositis Ass
 - Laboratory Results Management (Add/View)
 - Patient Records Management (Add/View)
 - Separate Dashboards for Doctors and Patients
-- SQLite Database Backend
-- Automatic Database Backup and Recovery
+- SQLite Database Backend with Auto-Recovery
 
 ## Prerequisites
 
@@ -36,11 +35,19 @@ mvn clean package
 java -cp "target/cmas-management-1.0-SNAPSHOT.jar;target/dependency/*" com.patientx.Main
 ```
 
-## Database Protection
+## Database Management
 
-The system automatically creates a backup of the database (`PatientXdatabase.backup.db`) when first run. If the main database file is deleted or corrupted, the system will automatically restore it from the backup. This ensures your data is protected even if you extract the project to a new location.
+The system includes a pre-configured SQLite database with initial data. When you run the application:
 
-**Important:** Do not delete both the main database file (`PatientXdatabase.db`) and the backup file (`PatientXdatabase.backup.db`) at the same time, as this will result in data loss.
+1. If no database exists in the current directory, the system automatically creates one from the embedded template
+2. All your data modifications are saved to this local database
+3. If you move or delete the database file, a fresh copy will be created from the template
+4. Each installation starts with the same initial data, ensuring consistency
+
+This approach ensures that:
+- You always start with a working database
+- Your data is preserved between runs
+- Moving or extracting the project to a new location works seamlessly
 
 ## License
 

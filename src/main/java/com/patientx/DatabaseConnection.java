@@ -2,6 +2,7 @@ package com.patientx;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -13,32 +14,30 @@ import java.sql.Statement;
 
 public class DatabaseConnection {
     private static final String DB_FILENAME = "PatientXdatabase.db";
-    private static final String DB_BACKUP = "PatientXdatabase.backup.db";
     private static String dbPath;
     
     static {
-        // Uygulama başladığında çalışacak kod
         try {
-            // Veritabanı dosyasının yolunu belirle
-            dbPath = new File(".").getCanonicalPath() + File.separator + DB_FILENAME;
+            // Uygulama klasörünü bul
+            String appDir = new File(System.getProperty("user.dir")).getAbsolutePath();
+            dbPath = Paths.get(appDir, DB_FILENAME).toString();
             
-            // Yedek dosya yolu
-            String backupPath = new File(".").getCanonicalPath() + File.separator + DB_BACKUP;
-            
-            // Eğer veritabanı dosyası yoksa ve yedek varsa, yedeği geri yükle
-            if (!new File(dbPath).exists() && new File(backupPath).exists()) {
-                Files.copy(Paths.get(backupPath), Paths.get(dbPath), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Veritabanı yedeği geri yüklendi.");
+            // Eğer veritabanı dosyası yoksa, resources'dan kopyala
+            if (!Files.exists(Paths.get(dbPath))) {
+                // Resources'dan veritabanını kopyala
+                try (InputStream is = DatabaseConnection.class.getResourceAsStream("/PatientXdatabase.db")) {
+                    if (is != null) {
+                        Files.copy(is, Paths.get(dbPath), StandardCopyOption.REPLACE_EXISTING);
+                        System.out.println("Veritabanı resources'dan kopyalandı.");
+                    } else {
+                        System.err.println("Veritabanı resources'da bulunamadı!");
+                    }
+                }
             }
             
             // Veritabanı bağlantısını test et
             testConnection();
             
-            // Bağlantı başarılıysa ve yedek yoksa, yedek al
-            if (!new File(backupPath).exists()) {
-                Files.copy(Paths.get(dbPath), Paths.get(backupPath), StandardCopyOption.REPLACE_EXISTING);
-                System.out.println("Veritabanı yedeği oluşturuldu.");
-            }
         } catch (IOException e) {
             System.err.println("Veritabanı dosya işlemleri hatası: " + e.getMessage());
         }
